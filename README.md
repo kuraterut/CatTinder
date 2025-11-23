@@ -46,7 +46,9 @@
 * В README актуальное описание проекта, фичи и картинки с интерфейсом!
 
 ## Скрины
-![Главный экран](screens/1.png)
-![Детали_картинки](screens/2.png)
-![Список_пород](screens/3.png)
-![Детали_породы](screens/4.png)
+<div align="center">
+  <img src="screens/1.png" width="20%" />
+  <img src="screens/2.png" width="20%" /> 
+  <img src="screens/3.png" width="20%" />
+<img src="screens/4.png" width="20%" />
+</div>
