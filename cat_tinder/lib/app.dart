@@ -4,8 +4,8 @@ import 'package:cat_tinder/presentation/providers/breeds_provider.dart';
 import 'package:cat_tinder/presentation/providers/cat_provider.dart';
 import 'package:cat_tinder/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 import 'data/datasources/cat_api.dart';
 import 'data/repositories/cat_repository.dart';

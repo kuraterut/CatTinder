@@ -1,9 +1,11 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
-import '../models/cat_image.dart';
-import '../models/cat_breed.dart';
+
 import '../../utils/constants.dart';
 import '../../utils/error_handler.dart';
+import '../models/cat_breed.dart';
+import '../models/cat_image.dart';
 
 class CatApi {
   final http.Client client;
