@@ -1,6 +1,6 @@
 import '../datasources/cat_api.dart';
-import '../models/cat_image.dart';
 import '../models/cat_breed.dart';
+import '../models/cat_image.dart';
 
 class CatRepository {
   final CatApi api;

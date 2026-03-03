@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../utils/error_handler.dart';
+import '../providers/auth_provider.dart';
 import '../providers/cat_provider.dart';
 import '../widgets/cat_card.dart';
 import '../widgets/like_dislike_buttons.dart';
+import 'auth_page.dart';
 import 'cat_detail_page.dart';
-import '../../utils/error_handler.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,21 +22,61 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<CatProvider>(context, listen: false);
-      if (provider.currentCat == null) {
-        provider.loadRandomCat();
+      if (mounted) {
+        final provider = Provider.of<CatProvider>(context, listen: false);
+        if (provider.currentCat == null) {
+          provider.loadRandomCat();
+        }
       }
     });
   }
 
+  Future<void> _logout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Выход из аккаунта'),
+        content: const Text('Вы уверены, что хотите выйти?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Выйти'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      if (!context.mounted) return;
+
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.signOut();
+
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthPage()),
+              (route) => false,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<CatProvider>(
-      builder: (context, provider, child) {
-        if (provider.error != null) {
+    return Consumer2<CatProvider, AuthProvider>(
+      builder: (context, catProvider, authProvider, child) {
+        if (catProvider.error != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            ErrorHandler.showErrorDialog(context, provider.error!);
-            provider.clearError();
+            ErrorHandler.showErrorDialog(context, catProvider.error!);
+            catProvider.clearError();
           });
         }
 
@@ -42,6 +86,27 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
             elevation: 0,
+            actions: [
+              if (authProvider.currentUser != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Center(
+                    child: Text(
+                      'Привет, ${authProvider.currentUser!.displayName ?? 'Котовод'}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () => _logout(context),
+                tooltip: 'Выйти из аккаунта',
+              ),
+            ],
           ),
           body: Column(
             children: [
@@ -49,34 +114,33 @@ class _HomePageState extends State<HomePage> {
                 flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: provider.isLoading
+                  child: catProvider.isLoading
                       ? _buildLoadingState()
-                      : provider.currentCat != null
-                          ? CatCard(
-                              catImage: provider.currentCat!,
-                              onSwipeLeft: provider.dislikeCat,
-                              onSwipeRight: provider.likeCat,
-                              onTap: () {
-                                if (provider.currentCat != null) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CatDetailPage(
-                                        catImage: provider.currentCat!,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                            )
-                          : _buildEmptyState(),
+                      : catProvider.currentCat != null
+                      ? CatCard(
+                    catImage: catProvider.currentCat!,
+                    onSwipeLeft: catProvider.dislikeCat,
+                    onSwipeRight: catProvider.likeCat,
+                    onTap: () {
+                      if (catProvider.currentCat != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CatDetailPage(
+                              catImage: catProvider.currentCat!,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  )
+                      : _buildEmptyState(),
                 ),
               ),
-
               LikeDislikeButtons(
-                onLike: provider.likeCat,
-                onDislike: provider.dislikeCat,
-                likesCount: provider.likesCount,
+                onLike: catProvider.likeCat,
+                onDislike: catProvider.dislikeCat,
+                likesCount: catProvider.likesCount,
               ),
             ],
           ),

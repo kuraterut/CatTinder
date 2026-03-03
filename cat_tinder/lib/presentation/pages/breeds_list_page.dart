@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../utils/error_handler.dart';
 import '../providers/breeds_provider.dart';
 import '../widgets/breed_list_item.dart';
 import 'breed_detail_page.dart';
-import '../../utils/error_handler.dart';
 
 class BreedsListPage extends StatefulWidget {
   const BreedsListPage({super.key});
